@@ -38,9 +38,6 @@ export default function Counter(props: CounterProps) {
     },
     [count, paused]);
 
-    const toggleDisplayMode = () => setDisplayMode
-        (m => m === DisplayMode.Linear ? DisplayMode.Radial : DisplayMode.Linear);
-
     return <>
 
         { displayMode === DisplayMode.Radial &&
@@ -60,18 +57,18 @@ export default function Counter(props: CounterProps) {
             </>
         }
 
-        <Button extraClasses='icon--arrow-circle'
-                onClick={() => setCount(c => c + 100)} />
+        <Button icon='arrow-circle' onClick={() => setCount(c => c + 100)} />
 
-        <Button extraClasses='icon--pause spaced-left--tight'
+        <Button icon='pause' highlighted={paused}
                 onClick={() => setPaused(p => !p)}
-                highlighted={paused}/>
+                extraClasses='spaced-left--tight' />
 
-        <Button extraClasses='icon--show spaced-left--tight'
-                onClick={toggleDisplayMode}
-                highlighted={displayMode === DisplayMode.Linear} />
+        <Button icon='show'
+                highlighted={displayMode === DisplayMode.Linear}
+                onClick={() => setDisplayMode(m => (m + 1) % 2)}
+                extraClasses='spaced-left--tight' />
 
-        <Button extraClasses='icon--reset spaced-left--tight'
-                onClick={() => setCount(startAt)} />
+        <Button icon='reset' onClick={() => setCount(startAt)}
+                extraClasses='spaced-left--tight' />
     </>;
 }

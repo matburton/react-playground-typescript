@@ -23,25 +23,23 @@ export default function App() {
         //
         return <Fragment key={element.key}>
             {element}
-            <Button extraClasses='icon--delete spaced-left--tight'
-                    onClick={() => removeCounter(element.key)} />
+            <Button icon='delete' onClick={() => removeCounter(element.key)}
+                    extraClasses='spaced-left--tight' />
         </Fragment>;
     }
 
     const removeCounter = (key: Key | null) =>
         setCounters(c => c.filter(e => e.key !== key));
 
-    const addCounter = () =>
-        setCounters(c => [...c, <Counter key={uuid()} />]);
+    const addCounter = () => setCounters(c => [...c, <Counter key={uuid()} />]);
 
     return <>
 
         {counters.map(renderWithRemove)}
 
         <div className="spaced-top--tight">
-            <Button extraClasses='button--primary icon--plus'
-                    onClick={addCounter}>
-                &nbsp;Add Counter
+            <Button icon='plus' onClick={addCounter} highlighted={true}>
+                Add Counter
             </Button>
         </div>
     </>;
