@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import Button from 'components/button/Button';
 
@@ -15,60 +15,85 @@ interface CounterProps {
     state?:   State;
 }
 
+interface CounterState {
+    value:       number;
+    paused:      boolean;
+    displayMode: DisplayMode;
+}
+
 // TODO: Is this timing really that accurate, how can setInterval be used?
 
 export default function Counter(props: CounterProps) {
 
-    const startAt: number = props.startAt ? props.startAt * 100 : 0;
+    const initialState: CounterState = {
+        value:       props.startAt ? props.startAt * 100 : 0,
+        paused:      false,
+        displayMode: props.display ?? DisplayMode.Radial };
 
-    const [count, setCount] = useState(startAt);
+    const [state, setState] = useState(initialState);
 
-    const [displayMode, setDisplayMode] =
-        useState(props.display ?? DisplayMode.Radial);
+    const timer = useRef<NodeJS.Timer | undefined>(undefined);
 
-    const [paused, setPaused] = useState(false);
+    useEffect(() => {
 
-    useEffect(() =>
-    {
-        if (paused) return;
+        if (!state.paused && timer.current === undefined) {
 
-        const id = setTimeout(() => setCount(c => c + 1), 100);
-  
-        return () => clearTimeout(id);
+            timer.current = setInterval
+                (() => setState(s => ({ ...s, value: s.value + 1 })), 100);
+        }
+
+        if (state.paused && timer.current !== undefined) {
+
+            clearInterval(timer.current);
+
+            timer.current = undefined;
+        }
     },
-    [count, paused]);
+    [state]);
+
+    useEffect(() => () => {
+
+        if (timer.current === undefined) return;
+
+        clearInterval(timer.current);
+
+        timer.current = undefined;
+    },
+    []);
 
     return <>
 
-        { displayMode === DisplayMode.Radial &&
-            <RadialProgress percentage={count % 100}>
-                {Math.floor(count / 100)}
+        { state.displayMode === DisplayMode.Radial &&
+            <RadialProgress percentage={state.value % 100}>
+                {Math.floor(state.value / 100)}
             </RadialProgress>
         }
 
-        { displayMode === DisplayMode.Linear &&
+        { state.displayMode === DisplayMode.Linear &&
             <>
-                <p className="beta">{Math.floor(count / 100)}</p>
+                <p className="beta">{Math.floor(state.value / 100)}</p>
                 <div className="progress--bar progress--bar--large"
                      style={{width: "20em"}}>
                     <span className="progress--bar__fill"
-                          style={{width: `${count % 100}%`}}></span>
+                          style={{width: `${state.value % 100}%`}}></span>
                 </div>
             </>
         }
 
-        <Button icon='arrow-circle' onClick={() => setCount(c => c + 100)} />
+        <Button icon='arrow-circle'
+                onClick={() => setState(s => ({ ...s, value: s.value + 100 }))} />
 
-        <Button icon='pause' highlighted={paused}
-                onClick={() => setPaused(p => !p)}
+        <Button icon='pause' highlighted={state.paused}
+                onClick={() => setState(s => ({ ...s, paused: !s.paused }))}
                 extraClasses='spaced-left--tight' />
 
         <Button icon='show'
-                highlighted={displayMode === DisplayMode.Linear}
-                onClick={() => setDisplayMode(m => (m + 1) % 2)}
+                highlighted={state.displayMode === DisplayMode.Linear}
+                onClick={() => setState(s => ({ ...s, displayMode: (s.displayMode + 1) % 2 }))}
                 extraClasses='spaced-left--tight' />
 
-        <Button icon='reset' onClick={() => setCount(startAt)}
+        <Button icon='reset'
+                onClick={() => setState(s => ({ ...s, value: initialState.value }))}
                 extraClasses='spaced-left--tight' />
     </>;
 }
