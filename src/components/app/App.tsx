@@ -13,17 +13,17 @@ import Button from 'components/button/Button';
 export default function App() {
 
     const [counters, setCounters] = useState([
-        <Counter display={DisplayMode.Linear} key={uuid()} />,
-        <Counter startAt={13} key={uuid()} />
+        withRemove(<Counter display={DisplayMode.Linear} />),
+        withRemove(<Counter startAt={13} />)
     ]);
 
-    function renderWithRemove(element: JSX.Element) {
+    function withRemove(element: JSX.Element) {
 
-        // Key hoisted to avoid warnings from React
-        //
-        return <Fragment key={element.key}>
+        const key = uuid();
+
+        return <Fragment key={key}>
             {element}
-            <Button icon='delete' onClick={() => removeCounter(element.key)}
+            <Button icon='delete' onClick={() => removeCounter(key)}
                     extraClasses='spaced-left--tight' />
         </Fragment>;
     }
@@ -31,11 +31,11 @@ export default function App() {
     const removeCounter = (key: Key | null) =>
         setCounters(c => c.filter(e => e.key !== key));
 
-    const addCounter = () => setCounters(c => [...c, <Counter key={uuid()} />]);
+    const addCounter = () => setCounters(c => [...c, withRemove(<Counter />)]);
 
     return <>
 
-        {counters.map(renderWithRemove)}
+        {counters}
 
         <div className="spaced-top--tight">
             <Button icon='plus' onClick={addCounter} highlighted={true}>

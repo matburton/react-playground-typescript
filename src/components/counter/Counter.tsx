@@ -15,14 +15,16 @@ interface CounterProps {
     state?:   State;
 }
 
+// TODO: More accurate over-time timing by comparing timestamps?
+
 export default function Counter(props: CounterProps) {
 
     const startAtValue: number = props.startAt ? props.startAt * 100 : 0;
 
     const [value, setValue] = useState(startAtValue);
 
-    const [displayMode, setDisplayMode] = useState(
-        props.display ?? DisplayMode.Radial);
+    const [displayMode, setDisplayMode] =
+        useState(props.display ?? DisplayMode.Radial);
 
     const [paused, setPaused] = useState(false);
 
