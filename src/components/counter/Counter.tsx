@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import Button from 'components/button/Button';
 
@@ -28,32 +28,15 @@ export default function Counter(props: CounterProps) {
 
     const [paused, setPaused] = useState(false);
 
-    const timer = useRef<NodeJS.Timer | undefined>(undefined);
-
     useEffect(() => {
 
-        if (!paused && timer.current === undefined) {
+        if (paused) return;
 
-            timer.current = setInterval(() => setValue(v => v + 1), 100);
-        }
-        else if (paused && timer.current !== undefined) {
+        const timer = setInterval(() => setValue(v => v + 1), 100);
 
-            clearInterval(timer.current);
-
-            timer.current = undefined;
-        }
+        return () => clearInterval(timer);
     },
     [paused]);
-
-    useEffect(() => () => {
-
-        if (timer.current === undefined) return;
-
-        clearInterval(timer.current);
-
-        timer.current = undefined;
-    },
-    []);
 
     return <>
 
